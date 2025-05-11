@@ -23,5 +23,5 @@ func main() {
 		c.HTML(200, "product_details.html", nil)
 	})
 
-	r.Run() // Starts on localhost:8080
+	r.Run(":3000") // Starts on localhost:3000
 }
