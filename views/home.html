@@ -2,14 +2,87 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Homepage</title>
+    <title>Gommerce | Modern E-Commerce</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/public/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to the Homepage</h1>
-        <p>This is the homepage of your Golang web application.</p>
+    <header class="header">
+        <div class="container navbar">
+            <a href="/" class="logo">Gommerce</a>
+            <ul class="nav-links">
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/products">Products</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Welcome to Gommerce</h1>
+            <p>Discover amazing products with our Golang-powered e-commerce platform.</p>
+            <a href="/products" class="btn btn-primary">Browse Products</a>
+        </div>
+    </section>
+
+    <div class="container content-container">
+        <h2>Featured Products</h2>
+        <div class="products-grid">
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Product" class="product-img">
+                <div class="product-info">
+                    <h3 class="product-title">Premium Headphones</h3>
+                    <p class="product-desc">High-quality sound experience with noise cancellation</p>
+                    <div class="product-price">$199.99</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1598516802414-50a01bee818d?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Product" class="product-img">
+                <div class="product-info">
+                    <h3 class="product-title">Smart Watch</h3>
+                    <p class="product-desc">Track your fitness and stay connected</p>
+                    <div class="product-price">$149.99</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1543472750-506bacbf5808?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Product" class="product-img">
+                <div class="product-info">
+                    <h3 class="product-title">Wireless Charger</h3>
+                    <p class="product-desc">Fast charging for all your devices</p>
+                    <div class="product-price">$39.99</div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-column">
+                <h3>Gommerce</h3>
+                <p>Modern e-commerce platform built with Go</p>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/products">Products</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact</h3>
+                <p>support@gommerce.com</p>
+                <p>123 Tech Street, City</p>
+            </div>
+        </div>
+        <div class="container footer-bottom">
+            <p>&copy; 2023 Gommerce. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/public/app.js"></script>
 </body>
 </html>
