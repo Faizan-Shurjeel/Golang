@@ -1,5 +1,5 @@
 // Mock product data - this would normally come from the server
-const products = [
+/* const products = [
     { 
         id: 1, 
         name: "Premium Headphones", 
@@ -42,12 +42,13 @@ const products = [
         price: 129.99,
         image: "https://via.placeholder.com/800x600?text=Mechanical+Keyboard" 
     }
-];
+]; */ // Comment out or remove mock product data
 
 // Handle products page
 if (document.getElementById('products-container')) {
     const productsContainer = document.getElementById('products-container');
     const searchInput = document.getElementById('search-products');
+    let allProducts = []; // To store products fetched from API
     
     // Display all products
     function displayProducts(productsToShow) {
@@ -63,7 +64,7 @@ if (document.getElementById('products-container')) {
             productCard.className = 'product-card';
             
             productCard.innerHTML = `
-                <img src="${product.image}" alt="${product.name}" class="product-img">
+                <img src="${product.imageUrl}" alt="${product.name}" class="product-img">
                 <div class="product-info">
                     <h3 class="product-title">${product.name}</h3>
                     <p class="product-desc">${product.description.substring(0, 80)}...</p>
@@ -82,15 +83,29 @@ if (document.getElementById('products-container')) {
     // Search functionality
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
-        const filteredProducts = products.filter(product => 
+        const filteredProducts = allProducts.filter(product => 
             product.name.toLowerCase().includes(searchTerm) || 
             product.description.toLowerCase().includes(searchTerm)
         );
         displayProducts(filteredProducts);
     });
     
-    // Initial display
-    displayProducts(products);
+    // Fetch products from API and initial display
+    async function fetchAndDisplayProducts() {
+        try {
+            const response = await fetch('/api/products');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            allProducts = await response.json();
+            displayProducts(allProducts);
+        } catch (error) {
+            console.error("Failed to fetch products:", error);
+            productsContainer.innerHTML = '<p>Error loading products. Please try again later.</p>';
+        }
+    }
+
+    fetchAndDisplayProducts();
 }
 
 // Handle product details page
@@ -99,38 +114,56 @@ if (document.getElementById('product-details')) {
     const urlParts = window.location.pathname.split('/');
     const productId = parseInt(urlParts[urlParts.length - 1]);
     
-    const product = products.find(p => p.id === productId) || products[0];
+    async function fetchProductDetails() {
+        try {
+            const response = await fetch(`/api/products/${productId}`);
+            if (!response.ok) {
+                let errorMessage = 'Error loading product details.';
+                if (response.status === 404) {
+                    errorMessage = 'Product not found.';
+                }
+                productDetailsContainer.innerHTML = `<p>${errorMessage}</p>`;
+                return;
+            }
+            const product = await response.json();
     
-    productDetailsContainer.innerHTML = `
-        <div>
-            <img src="${product.image}" alt="${product.name}" class="product-details-img">
-        </div>
-        <div class="product-details-info">
-            <h1>${product.name}</h1>
-            <div class="product-details-price">$${product.price.toFixed(2)}</div>
-            <p class="product-details-desc">${product.description}</p>
+            productDetailsContainer.innerHTML = `
+                <div>
+                    <img src="${product.imageUrl}" alt="${product.name}" class="product-details-img">
+                </div>
+                <div class="product-details-info">
+                    <h1>${product.name}</h1>
+                    <div class="product-details-price">$${product.price.toFixed(2)}</div>
+                    <p class="product-details-desc">${product.description}</p>
+                    
+                    <div class="add-to-cart">
+                        <input type="number" class="quantity" value="1" min="1">
+                        <button class="btn btn-primary">Add to Cart</button>
+                    </div>
+                    
+                    <div style="margin-top: 2rem;">
+                        <h3>Product Features</h3>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>High-quality materials</li>
+                            <li>1-year warranty</li>
+                            <li>Free shipping on orders over $50</li>
+                            <li>30-day money back guarantee</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
             
-            <div class="add-to-cart">
-                <input type="number" class="quantity" value="1" min="1">
-                <button class="btn btn-primary">Add to Cart</button>
-            </div>
-            
-            <div style="margin-top: 2rem;">
-                <h3>Product Features</h3>
-                <ul style="margin-left: 1.5rem;">
-                    <li>High-quality materials</li>
-                    <li>1-year warranty</li>
-                    <li>Free shipping on orders over $50</li>
-                    <li>30-day money back guarantee</li>
-                </ul>
-            </div>
-        </div>
-    `;
-    
-    // Add event listener for Add to Cart button
-    const addToCartBtn = productDetailsContainer.querySelector('.btn-primary');
-    addToCartBtn.addEventListener('click', () => {
-        const quantity = parseInt(productDetailsContainer.querySelector('.quantity').value);
-        alert(`Added ${quantity} ${product.name}(s) to cart!`);
-    });
+            // Add event listener for Add to Cart button
+            const addToCartBtn = productDetailsContainer.querySelector('.btn-primary');
+            addToCartBtn.addEventListener('click', () => {
+                const quantity = parseInt(productDetailsContainer.querySelector('.quantity').value);
+                alert(`Added ${quantity} ${product.name}(s) to cart!`);
+            });
+        } catch (error) {
+            console.error("Failed to fetch product details:", error);
+            productDetailsContainer.innerHTML = '<p>Error loading product details. Please try again later.</p>';
+        }
+    }
+
+    fetchProductDetails();
 }
