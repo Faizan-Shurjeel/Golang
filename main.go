@@ -1,10 +1,15 @@
 package main
 
 import (
-	"net/http"
-	"strconv"
+	"log"
+	"os"
 
+	"ecommerce-backend/config"
+	"ecommerce-backend/routes"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 // Product represents a product in our store
@@ -56,87 +61,35 @@ var products = []Product{
 }
 
 func main() {
-	r := gin.Default()
+	// Load environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
 
-	// Serve static files
-	r.Static("/public", "./public") // Serves CSS/JS
-	r.Static("/assets", "./assets") // Serves images
+	// Connect to MongoDB
+	config.ConnectDB()
 
-	// Load HTML templates
-	r.LoadHTMLGlob("views/*")
+	// Initialize Gin router
+	router := gin.Default()
 
-	// Define routes
-	r.GET("/", func(c *gin.Context) {
-		// Pass featured products to the template
-		featuredProducts := products[:3] // Just get first 3 for featured section
-		c.HTML(http.StatusOK, "home.html", gin.H{
-			"title":    "Gommerce | Modern E-Commerce",
-			"products": featuredProducts,
-		})
-	})
+	// CORS middleware
+	router.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
-	r.GET("/products", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "products.html", gin.H{
-			"title":    "Products | Gommerce",
-			"products": products,
-		})
-	})
+	// Register routes
+	routes.SetupRoutes(router)
 
-	r.GET("/products/:id", func(c *gin.Context) {
-		idStr := c.Param("id")
-		id, err := strconv.Atoi(idStr)
+	// Get port from environment or use default
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
-		if err != nil {
-			c.HTML(http.StatusNotFound, "404.html", nil)
-			return
-		}
-
-		// Find product by ID
-		var product Product
-		found := false
-
-		for _, p := range products {
-			if p.ID == id {
-				product = p
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			c.HTML(http.StatusNotFound, "404.html", nil)
-			return
-		}
-
-		c.HTML(http.StatusOK, "product_details.html", gin.H{
-			"title":   product.Name + " | Gommerce",
-			"product": product,
-		})
-	})
-
-	// API endpoints for JavaScript to consume
-	r.GET("/api/products", func(c *gin.Context) {
-		c.JSON(http.StatusOK, products)
-	})
-
-	r.GET("/api/products/:id", func(c *gin.Context) {
-		idStr := c.Param("id")
-		id, err := strconv.Atoi(idStr)
-
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
-			return
-		}
-
-		for _, p := range products {
-			if p.ID == id {
-				c.JSON(http.StatusOK, p)
-				return
-			}
-		}
-
-		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
-	})
-
-	r.Run(":3000") // Starts on localhost:3000
+	log.Printf("Server starting on port %s", port)
+	log.Fatal(router.Run(":" + port))
 }
